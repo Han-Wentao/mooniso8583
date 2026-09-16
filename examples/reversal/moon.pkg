@@ -1,0 +1,5 @@
+import {
+  "Han-Wentao/mooniso8583" @iso,
+}
+
+pkgtype(kind: "executable")
