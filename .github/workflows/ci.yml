@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install MoonBit stable toolchain
+        shell: bash
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s latest
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: Show toolchain versions
+        run: |
+          moon version --all
+          moonrun --version
+
+      - name: Verify formatting
+        shell: bash
+        run: |
+          moon fmt
+          git diff --exit-code
+
+      - name: Enforce conservative source threshold
+        run: python3 tools/count_effective_moonbit.py --check-core 3000
+
+      - name: Check all backends
+        run: |
+          moon check --target wasm-gc --deny-warn
+          moon check --target wasm --deny-warn
+          moon check --target js --deny-warn
+          moon check --target native --deny-warn
+
+      - name: Run tests on portable backends
+        run: |
+          moon test --target wasm-gc
+          moon test --target js
+          moon test --target native
+
+      - name: Run end-to-end examples
+        run: |
+          moon run examples/authorization
+          moon run examples/reversal
+          moon run examples/network_management
