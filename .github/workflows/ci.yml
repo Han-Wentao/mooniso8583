@@ -21,6 +21,9 @@ jobs:
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s latest
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
 
+      - name: Verify compiler version
+        run: python3 tools/check_moonc_version.py --minimum 0.10.14
+
       - name: Show toolchain versions
         run: |
           moon version --all
@@ -41,6 +44,13 @@ jobs:
           moon check --target wasm --deny-warn
           moon check --target js --deny-warn
           moon check --target native --deny-warn
+
+      - name: Build all backends
+        run: |
+          moon build --target wasm-gc --deny-warn
+          moon build --target wasm --deny-warn
+          moon build --target js --deny-warn
+          moon build --target native --deny-warn
 
       - name: Run tests on portable backends
         run: |

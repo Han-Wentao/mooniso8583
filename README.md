@@ -222,6 +222,16 @@ MoonISO8583 目前不是 jPOS 替代品。它适合嵌入网关、模拟器和�
 
 这些边界让库保持可审计。密码学和在线交易状态机应由专门组件承担。
 
+## 工具链与持续集成
+
+项目要求 `moonc >= 0.10.14`。本地可以先运行 `moonc -v`，再执行下面的版本检查；版本过低时应按 MoonBit 官方安装方式升级，不要用旧编译器生成提交物：
+
+```bash
+python tools/check_moonc_version.py --minimum 0.10.14
+```
+
+GitHub Actions 会在每次 push 和 pull request 中执行格式检查、有效源码门槛、Wasm GC/Wasm/JavaScript/Native 四个目标的检查与构建、跨后端测试，以及三个端到端示例。工作流中的版本门禁和显式 `moon build` 让验收要求可以直接复现。
+
 ## 测试和验收
 
 ```bash
@@ -229,6 +239,8 @@ moon fmt
 moon check --target wasm-gc --deny-warn
 moon check --target wasm --deny-warn
 moon check --target js --deny-warn
+moon build --target wasm-gc --deny-warn
+moon build --target js --deny-warn
 moon test --target wasm-gc
 moon test --target js
 moon run examples/authorization
@@ -237,9 +249,9 @@ moon run examples/network_management
 python tools/count_effective_moonbit.py --check-core 3000
 ```
 
-GitHub CI 额外运行 Native check/test。当前仓库有 **81 个测试**，覆盖位图、BCD、字段编解码、报文 round-trip、PAN/Track 2、DE54、DE55、DE90、模板、请求响应关联、流式半包/粘包和安全日志。
+GitHub CI 额外运行 Native check/build/test，并执行 `moonc >= 0.10.14` 的版本门禁。当前仓库有 **81 个测试**，覆盖位图、BCD、字段编解码、报文 round-trip、PAN/Track 2、DE54、DE55、DE90、模板、请求响应关联、流式半包/粘包和安全日志。
 
-源码统计使用保守口径：排除测试、示例、生成目录、空行、整行注释，并将大型字段规格表 `profile_1987.mbt` 单独列出。2026 年 9 月 16 日的统计结果：
+源码统计使用保守口径：排除测试、示例、生成目录、空行、整行注释，并将大型字段规格表 `profile_1987.mbt` 单独列出。2026 年 9 月 29 日复核结果：
 
 | 分类 | 文件 | 物理行 | 有效行 |
 | --- | ---: | ---: | ---: |
@@ -255,7 +267,8 @@ GitHub CI 额外运行 Native check/test。当前仓库有 **81 个测试**，�
 - 版本：`0.1.0`
 - 许可证：Apache-2.0
 - 默认目标：Wasm GC
-- CI：Wasm GC、Wasm、JavaScript、Native
+- CI：检查、构建、测试覆盖 Wasm GC、Wasm、JavaScript、Native
+- 工具链门禁：`moonc >= 0.10.14`
 - 提交历史：按功能切片提交，包含 20 个以上可独立审查的实现、测试、示例和工程提交
 
 ## 原创与参考
