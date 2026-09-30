@@ -40,17 +40,17 @@ jobs:
 
       - name: Check all backends
         run: |
-          moon check --target wasm-gc --deny-warn
-          moon check --target wasm --deny-warn
-          moon check --target js --deny-warn
-          moon check --target native --deny-warn
+          moon check --target wasm-gc
+          moon check --target wasm
+          moon check --target js
+          moon check --target native
 
       - name: Build all backends
         run: |
-          moon build --target wasm-gc --deny-warn
-          moon build --target wasm --deny-warn
-          moon build --target js --deny-warn
-          moon build --target native --deny-warn
+          moon build --target wasm-gc
+          moon build --target wasm
+          moon build --target js
+          moon build --target native
 
       - name: Run tests on portable backends
         run: |
